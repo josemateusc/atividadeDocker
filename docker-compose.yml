@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=Web@cad123
+      - MYSQL_DATABASE=dockerDB
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - 3307:3306
+    networks:
+      - mynetwork
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: Web@cad123
+    ports:
+      - 8080:80
+    networks:
+      - mynetwork
+
+  backend:
+    build: ./webacademy-livros-backend
+    restart: always
+    ports:
+      - 4444:4444
+    volumes:
+      - ./webacademy-livros-backend/log:/app/log
+    environment:
+      DB_HOST: mysql
+      DB_USER: webacademy
+      DB_PASS: Web@cad123
+      DB_PORT: 3306
+      DB_NAME: dockerDB
+    networks:
+      - mynetwork
+
+  frontend:
+    build: ./webacademy-livros-frontend
+    restart: always
+    ports:
+      - 8000:80
+    networks:
+      - mynetwork
+
+volumes:
+  db_data:
+
+networks:
+  mynetwork:
+    driver: bridge
